@@ -111,12 +111,15 @@ public abstract class SemanticType {
 
     private final Set<String> uniqueConstraints = new HashSet<String>();
 
+    public final Properties databaseTypes;
+
     /**
      * sets the the various properties available in attrs USING DEFAULTS IF NOT
      * AVAILABLE. Subclasses may override these values.
      */
-    public SemanticType(String profile, Properties attrs) {
+    public SemanticType(String profile, Properties attrs, Properties databaseTypes) {
         this.profile = profile;
+        this.databaseTypes = databaseTypes;
         setId(attrs.getProperty("id", getId()));
         setTable(typeToColumn(getId()));
         if (null == getId()) {
@@ -143,7 +146,7 @@ public abstract class SemanticType {
      * and table names, both keywords and lengths.
      */
     public boolean isRestrictive() {
-        return ! profile.equals("psql");
+        return ! profile.contains("psql");
     }
 
     public void validate() {
@@ -154,7 +157,7 @@ public abstract class SemanticType {
      * creates a new type based on the element-valued key in TYPES2CLASSES. Used
      * mainly by the xml reader
      */
-    public static SemanticType makeNew(String profile, String element, Properties attributes)
+    public static SemanticType makeNew(String profile, String element, Properties attributes, Properties databaseTypes)
             throws IllegalArgumentException, IllegalStateException {
         Class<?> klass = TYPES2CLASSES.get(element);
 
@@ -167,8 +170,8 @@ public abstract class SemanticType {
 
         try {
             st = (SemanticType) klass.getConstructor(
-                    new Class[] { String.class, Properties.class }).newInstance(
-                    new Object[] { profile, attributes });
+                    new Class[] { String.class, Properties.class, Properties.class }).newInstance(
+                    new Object[] { profile, attributes, databaseTypes });
         } catch (Exception e) {
             throw new IllegalStateException(
                     "Cannot instantiate class " + klass, e);
@@ -389,7 +392,7 @@ public abstract class SemanticType {
         if (superclass != null) {
             Properties p = new Properties();
             p.setProperty("id", superclass);
-            this.superclass = new SemanticType(profile, p) {
+            this.superclass = new SemanticType(profile, p, databaseTypes) {
             };
         }
     }
@@ -559,28 +562,28 @@ public abstract class SemanticType {
 //
 
 class BaseType extends SemanticType {
-    public BaseType(String profile, Properties attrs) {
-        super(profile, attrs);
+    public BaseType(String profile, Properties attrs, Properties databaseTypes) {
+        super(profile, attrs, databaseTypes);
     }
 }
 
 class AbstractType extends SemanticType {
-    public AbstractType(String profile, Properties attrs) {
-        super(profile, attrs);
+    public AbstractType(String profile, Properties attrs, Properties databaseTypes) {
+        super(profile, attrs, databaseTypes);
         this.setAbstract(Boolean.TRUE);
     }
 }
 
 class ContainerType extends SemanticType {
-    public ContainerType(String profile, Properties attrs) {
-        super(profile, attrs);
+    public ContainerType(String profile, Properties attrs, Properties databaseTypes) {
+        super(profile, attrs, databaseTypes);
         // TODO
     }
 }
 
 class LinkType extends SemanticType {
-    public LinkType(String profile, Properties attrs) {
-        super(profile, attrs);
+    public LinkType(String profile, Properties attrs, Properties databaseTypes) {
+        super(profile, attrs, databaseTypes);
     }
 
     @Override
@@ -600,23 +603,23 @@ class LinkType extends SemanticType {
 }
 
 class ResultType extends SemanticType {
-    public ResultType(String profile, Properties attrs) {
-        super(profile, attrs);
+    public ResultType(String profile, Properties attrs, Properties databaseTypes) {
+        super(profile, attrs, databaseTypes);
         // TODO
     }
 }
 
 class EnumType extends SemanticType {
 
-    public EnumType(String profile, Properties attrs) {
-        super(profile, attrs);
+    public EnumType(String profile, Properties attrs, Properties databaseTypes) {
+        super(profile, attrs, databaseTypes);
         setGlobal(Boolean.TRUE);
         setImmutable(Boolean.TRUE);
         Properties props = new Properties();
         props.setProperty("name", "value");
         props.setProperty("type", "string");
         props.setProperty("unique", "true");
-        RequiredField value = new RequiredField(this, props);
+        RequiredField value = new RequiredField(this, props, databaseTypes);
         getProperties().add(value);
     }
 

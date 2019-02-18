@@ -1,53 +1,53 @@
 package org.openmicroscopy.dsl.extensions
 
 import org.gradle.api.Project
+import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.FileCollection
 
 class OperationExtension {
 
-    public final String name
+    final String name
 
-    public final Project project
+    final Project project
 
-    String profile
+    final ConfigurableFileCollection omeXmlFiles
 
     File template
 
-    FileCollection omeXmlFiles
-
-    protected OperationExtension(String name, Project project) {
+    OperationExtension(String name, Project project) {
         this.name = name
         this.project = project
-        this.profile = "psql"
-    }
-
-    void setTemplate(String t) {
-        template = new File(t)
-    }
-
-    void template(String t) {
-        setTemplate(t)
-    }
-
-    void template(File template) {
-        this.template = template
+        this.omeXmlFiles = project.files()
     }
 
     void omeXmlFiles(FileCollection files) {
-        if (omeXmlFiles) {
-            omeXmlFiles = omeXmlFiles + files
-        } else {
-            omeXmlFiles = files
-        }
+        setOmeXmlFiles(files)
     }
 
-    void setOmeXmlFiles(List<File> files) {
-        this.omeXmlFiles = project.files(files)
+    void omeXmlFiles(Object... files) {
+        setOmeXmlFiles(files)
     }
 
-    void omeXmlFiles(List<File> files) {
-        this.omeXmlFiles(project.files(files))
+    void setOmeXmlFiles(FileCollection files) {
+        omeXmlFiles.setFrom(files)
     }
+
+    void setOmeXmlFiles(Object... files) {
+        setOmeXmlFiles(project.files(files))
+    }
+
+    void template(String template) {
+        setTemplate(template)
+    }
+
+    void setTemplate(String t) {
+        setTemplate(new File(t))
+    }
+
+    void setTemplate(File t) {
+        template = t
+    }
+
 }
 
 

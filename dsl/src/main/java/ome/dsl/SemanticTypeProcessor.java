@@ -16,9 +16,12 @@ public class SemanticTypeProcessor implements Callable<Collection<SemanticType>>
 
     private final String profile;
 
-    public SemanticTypeProcessor(String profile, Map<String, SemanticType> types) {
+    private final Properties dbTypes;
+
+    public SemanticTypeProcessor(String profile, Map<String, SemanticType> types, Properties dbTypes) {
         this.profile = profile;
         this.types = types;
+        this.dbTypes = dbTypes;
     }
 
     @Override
@@ -40,18 +43,18 @@ public class SemanticTypeProcessor implements Callable<Collection<SemanticType>>
                 // Create link
                 Properties linkP = new Properties();
                 linkP.setProperty("id", newId);
-                LinkType l = new LinkType(profile, linkP);
+                LinkType l = new LinkType(profile, linkP, dbTypes);
 
                 Properties parentP = new Properties();
                 parentP.setProperty("type", t.getId());
-                LinkParent lp = new LinkParent(l, parentP);
+                LinkParent lp = new LinkParent(l, parentP, dbTypes);
 
                 lp.validate();
                 l.getProperties().add(lp);
 
                 Properties childP = new Properties();
                 childP.setProperty("type", ann.getId());
-                LinkChild lc = new LinkChild(l, childP);
+                LinkChild lc = new LinkChild(l, childP, dbTypes);
 
                 lc.validate();
                 l.getProperties().add(lc);
@@ -64,7 +67,7 @@ public class SemanticTypeProcessor implements Callable<Collection<SemanticType>>
                 clP.setProperty("name", "annotationLinks");
                 clP.setProperty("type", newId);
                 clP.setProperty("target", ann.getId());
-                ChildLink cl = new ChildLink(t, clP);
+                ChildLink cl = new ChildLink(t, clP, dbTypes);
                 cl.setBidirectional(false);
 
                 cl.validate();
@@ -86,14 +89,14 @@ public class SemanticTypeProcessor implements Callable<Collection<SemanticType>>
                 Properties p = new Properties();
                 p.setProperty("name", "name");
                 p.setProperty("type", "text");
-                RequiredField r = new RequiredField(namedOrDescribed, p);
+                RequiredField r = new RequiredField(namedOrDescribed, p, dbTypes);
                 namedOrDescribed.getProperties().add(r);
             }
             if (descrd != null && descrd) {
                 Properties p = new Properties();
                 p.setProperty("name", "description");
                 p.setProperty("type", "text");
-                OptionalField o = new OptionalField(namedOrDescribed, p);
+                OptionalField o = new OptionalField(namedOrDescribed, p, dbTypes);
                 namedOrDescribed.getProperties().add(o);
             }
         }
@@ -229,7 +232,7 @@ public class SemanticTypeProcessor implements Callable<Collection<SemanticType>>
                 SemanticType s = types.get(superclass);
                 t.setActualSuperClass(s);
             } else {
-                t.getProperties().add(new DetailsField(t, new Properties()));
+                t.getProperties().add(new DetailsField(t, new Properties(), dbTypes));
             }
         }
 
@@ -248,4 +251,5 @@ public class SemanticTypeProcessor implements Callable<Collection<SemanticType>>
         // For links, the inverse was already set by the constructor
         return true;
     }
+
 }

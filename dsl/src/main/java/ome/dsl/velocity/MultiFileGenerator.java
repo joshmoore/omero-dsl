@@ -40,11 +40,12 @@ public class MultiFileGenerator extends Generator {
         fileNameFormatter = builder.fileNameFormatter;
     }
 
-    public void run() {
+    @Override
+    public Void call() throws Exception {
         // Create list of semantic types from source files
         Collection<SemanticType> types = loadSemanticTypes(omeXmlFiles);
         if (types.isEmpty()) {
-            return; // Skip when no files, otherwise we overwrite.
+            return null; // Skip when no files, otherwise we overwrite.
         }
 
         // Velocity process the semantic types
@@ -56,6 +57,7 @@ public class MultiFileGenerator extends Generator {
             String filename = fileNameFormatter.format(st);
             parseTemplate(vc, template, new File(outputDir, filename));
         }
+        return null;
     }
 
     public static class Builder extends Generator.Builder {

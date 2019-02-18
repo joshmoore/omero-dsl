@@ -11,17 +11,13 @@ repositories {
 
 dependencies {
     // We need this for the sax reader and type processor
-    implementation project(':dsl')
-    testImplementation('org.spockframework:spock-core:1.1-groovy-2.4') {
+    compile project(':dsl')
+    testImplementation('org.spockframework:spock-core:1.2-groovy-2.5') {
         exclude module: 'groovy-all'
     }
 }
-
-sourceSets {
-    main {
-        groovy.srcDirs 'src/main/groovy'
-        resources.srcDirs 'src/main/resources'
-    }
+test {
+    systemProperty 'resourcesDir', file('src/test/resources')
 }
 
 gradlePlugin {

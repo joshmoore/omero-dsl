@@ -4,7 +4,7 @@ import org.gradle.api.Project
 
 class CodeExtension extends OperationExtension {
 
-    File outputPath
+    File outputDir
 
     Closure formatOutput
 
@@ -12,19 +12,20 @@ class CodeExtension extends OperationExtension {
         super(name, project)
     }
 
-    void setOutputPath(String dir) {
-        this.outputPath = new File(dir)
-    }
-
-    void outputPath(String dir) {
-        setOutputPath(dir)
-    }
-
-    void outputPath(File dir) {
+    void outputDir(File dir) {
         this.outputPath = dir
+    }
+
+    void outputDir(String dir) {
+        setOutputDir(dir)
+    }
+
+    void setOutputDir(String dir) {
+        outputDir = new File(dir)
     }
 
     void formatOutput(Closure closure) {
         this.formatOutput = closure
     }
+
 }

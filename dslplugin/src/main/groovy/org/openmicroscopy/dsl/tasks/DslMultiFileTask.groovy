@@ -16,7 +16,11 @@ class DslMultiFileTask extends DslBaseTask {
      * Note: also requires setting {@link this.formatOutput}
      */
     @OutputDirectory
-    File outputPath
+    File outputDir
+
+    void formatOutput(Closure formatter) {
+        setFormatOutput(formatter)
+    }
 
     void setFormatOutput(Closure formatter) {
         formatOutput = new MultiFileGenerator.FileNameFormatter() {
@@ -27,22 +31,19 @@ class DslMultiFileTask extends DslBaseTask {
         }
     }
 
-    void formatOutput(Closure formatter) {
-        setFormatOutput(formatter)
+    void outputDir(Object dir) {
+        setOutputDir(dir)
     }
 
-    void setOutputPath(File path) {
-        this.outputPath = setAbsPath(path)
-    }
-
-    void outputPath(File path) {
-        setOutputPath(path)
+    void setOutputDir(Object dir) {
+        this.outputDir = project.file(dir)
     }
 
     @Override
     protected Generator.Builder createGenerator() {
         return new MultiFileGenerator.Builder()
-                .setOutputDir(outputPath)
+                .setOutputDir(outputDir)
                 .setFileNameFormatter(formatOutput)
     }
+
 }

@@ -1,3 +1,5 @@
+package org.openmicroscopy.dsl
+
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
 import org.junit.Rule
@@ -9,7 +11,7 @@ import spock.lang.Specification
 class DslExtensionTest extends Specification {
 
     @Rule
-    final TemporaryFolder testProjectDir = new TemporaryFolder()
+    TemporaryFolder testProjectDir = new TemporaryFolder()
     Project project
     DslExtension dsl
 
@@ -23,7 +25,7 @@ class DslExtensionTest extends Specification {
         dsl.outputPath "someFolder"
 
         then:
-        dsl.outputPath.isAbsolute()
+        dsl.outputDir.isAbsolute()
     }
 
     def "Templates support multiple dirs"() {

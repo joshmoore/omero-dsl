@@ -20,11 +20,12 @@ public class SingleFileGenerator extends Generator {
         this.outFile = builder.outFile;
     }
 
-    public void run() {
+    @Override
+    public Void call() throws Exception {
         // Create list of semantic types from source files
         List<SemanticType> types = loadSemanticTypes(omeXmlFiles);
         if (types.isEmpty()) {
-            return; // Skip when no files, otherwise we overwrite.
+            return null; // Skip when no files, otherwise we overwrite.
         }
 
         // Sort types by short name
@@ -36,6 +37,7 @@ public class SingleFileGenerator extends Generator {
 
         // Do the work
         parseTemplate(vc, template, outFile);
+        return null;
     }
 
     public static class Builder extends Generator.Builder {

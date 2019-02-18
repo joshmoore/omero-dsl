@@ -12,12 +12,12 @@ class DslSingleFileTask extends DslBaseTask {
     @OutputFile
     File outFile
 
-    void setOutFile(File outFile) {
-        this.outFile = setAbsPath(outFile)
+    void outFile(Object outFile) {
+        setOutFile(outFile)
     }
 
-    void outFile(File outFile) {
-        setOutFile(outFile)
+    void setOutFile(Object outFile) {
+        this.outFile = project.file(outFile)
     }
 
     @Override
@@ -25,4 +25,5 @@ class DslSingleFileTask extends DslBaseTask {
         return new SingleFileGenerator.Builder()
                 .setOutFile(outFile)
     }
+
 }

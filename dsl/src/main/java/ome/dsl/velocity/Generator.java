@@ -26,10 +26,18 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
+import java.util.concurrent.Callable;
 
-public abstract class Generator implements Runnable {
 
-    final Logger log = LoggerFactory.getLogger(Generator.class);
+public abstract class Generator implements Callable<Void> {
+
+    private final Logger Log = LoggerFactory.getLogger(Generator.class);
+
+    /**
+     * The database types corresponding to the profiles
+     */
+    private Properties databaseTypes;
 
     /**
      * Profile thing
@@ -53,7 +61,11 @@ public abstract class Generator implements Runnable {
 
     protected Generator(Builder builder) {
         if (builder.profile == null || builder.profile.isEmpty()) {
-            throw new InvalidParameterException("Generator.profile cannot be null or empty, default is 'psql'");
+            throw new InvalidParameterException("Generator.profile cannot be null or empty");
+        }
+
+        if (builder.databaseTypes == null || builder.databaseTypes.isEmpty()) {
+            throw new InvalidParameterException("Generator.databaseTypes cannot be null or empty");
         }
 
         if (builder.template == null) {
@@ -65,6 +77,7 @@ public abstract class Generator implements Runnable {
         }
 
         this.profile = builder.profile;
+        this.databaseTypes = builder.databaseTypes;
         this.omeXmlFiles = builder.omeXmlFiles;
         this.template = builder.template;
         this.velocity = builder.velocity;
@@ -72,7 +85,7 @@ public abstract class Generator implements Runnable {
 
     List<SemanticType> loadSemanticTypes(Collection<File> files) {
         Map<String, SemanticType> typeMap = new HashMap<>();
-        MappingReader sr = new MappingReader(profile);
+        MappingReader sr = new MappingReader(profile, databaseTypes);
         for (File file : files) {
             if (file.exists()) {
                 typeMap.putAll(sr.parse(file));
@@ -83,54 +96,36 @@ public abstract class Generator implements Runnable {
             return Collections.emptyList(); // Skip when no files, otherwise we overwrite.
         }
 
-        return new SemanticTypeProcessor(profile, typeMap).call();
+        return new SemanticTypeProcessor(profile, typeMap, databaseTypes).call();
     }
 
-    void parseTemplate(VelocityContext vc, File template, File output) {
-        InputStream in = getTemplateStream(template);
-        OutputStream os = getOutputStream(output);
-
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+    void parseTemplate(VelocityContext vc, File template, File output) throws IOException {
+        try (InputStream in = FileUtils.openInputStream(template);
+             OutputStream os = FileUtils.openOutputStream(output);
+             BufferedReader reader = new BufferedReader(new InputStreamReader(in));
              BufferedWriter result = new BufferedWriter(new OutputStreamWriter(os, StandardCharsets.UTF_8))) {
-
-            velocity.evaluate(vc, result,
-                    "Processing template: " + this.template.getName(), reader);
-
+            velocity.evaluate(vc, result, "Processing template: " + this.template.getName(), reader);
         } catch (ParseErrorException e) {
-            log.error("Error parsing template", e);
-        } catch (IOException | MethodInvocationException e) {
-            log.error("", e);
+            Log.error("Error parsing template", e);
+        } catch (MethodInvocationException e) {
+            Log.error("", e);
         }
-    }
-
-    private InputStream getTemplateStream(File template) {
-        InputStream in = null;
-        try {
-            in = FileUtils.openInputStream(template);
-        } catch (IOException e) {
-            log.error("Error with template:" + template.getName(), e);
-        }
-        return in;
-    }
-
-    private OutputStream getOutputStream(File output) {
-        OutputStream os = null;
-        try {
-            os = FileUtils.openOutputStream(output);
-        } catch (IOException e) {
-            log.error("Error with output:" + output, e);
-        }
-        return os;
     }
 
     public static abstract class Builder {
         private String profile;
+        private Properties databaseTypes;
         private File template;
         private VelocityEngine velocity;
         private Collection<File> omeXmlFiles;
 
         public Builder setProfile(String profile) {
             this.profile = profile;
+            return this;
+        }
+
+        public Builder setDatabaseTypes(Properties databaseTypes) {
+            this.databaseTypes = databaseTypes;
             return this;
         }
 

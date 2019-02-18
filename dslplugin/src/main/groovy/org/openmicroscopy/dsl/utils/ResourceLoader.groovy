@@ -32,7 +32,7 @@ class ResourceLoader {
         }
     }
 
-    static private def loadFileOrExtract(Project project, String resourceFile) {
+    static def loadFileOrExtract(Project project, String resourceFile) {
         def result = new File("${project.buildDir}/${resourceFile}")
         // Check if file exists in build directory
         if (!result.exists()) {

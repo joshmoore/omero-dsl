@@ -42,8 +42,8 @@ public class MappingReader {
      */
     private SAXParser parser;
 
-    public MappingReader(String profile) {
-        handler = new DSLHandler(profile);
+    public MappingReader(String profile, Properties databaseTypes) {
+        handler = new DSLHandler(profile, databaseTypes);
         init();
     }
 
@@ -93,8 +93,12 @@ public class MappingReader {
         // For handling
         private final Map<String, SemanticType> types = new HashMap<>();
 
-        public DSLHandler(String profile) {
+        private Properties databaseTypes;
+
+        public DSLHandler(String profile, Properties databaseTypes)
+        {
             this.profile = profile;
+            this.databaseTypes = databaseTypes;
         }
 
         /**
@@ -143,7 +147,7 @@ public class MappingReader {
                             + element + " without a type!");
                 }
 
-                property = Property.makeNew(element, type, attrs2props(attrs));
+                property = Property.makeNew(element, type, attrs2props(attrs), databaseTypes);
 
             } else if ("properties".equals(element)) {
                 // ok. these usually contains lots of properties
@@ -153,7 +157,7 @@ public class MappingReader {
                             + element + " from within type " + type);
                 }
 
-                type = SemanticType.makeNew(profile, element, attrs2props(attrs));
+                type = SemanticType.makeNew(profile, element, attrs2props(attrs), databaseTypes);
 
             } else if ("types".equals(element)) {
                 // also ok.
@@ -238,6 +242,7 @@ public class MappingReader {
         }
 
     }
+
 }
 
 

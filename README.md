@@ -145,7 +145,7 @@ dsl {
 |---------------|----------------|---------------|----------------------------------------------------------------------------------|
 | outputPath    | File           |       -       | Output directory to generate files in                                            |
 | formatOutput  | Closure        |       -       | Closure that receives a `SemanticType` object for tweaking generated files names |
-| profile       | String         |      psql     | Database engine syntax to use                                                    |
+| databaseTypes       | String         |       -       | Path to .properties file describing type for the database engine syntax to use   |                                                   |
 | template      | File           |       -       | Velocity file, can be absolute or filename to search through `dsl.templateFiles` |
 | omeXmlFiles   | FileCollection |       -       | Collection of `.ome.xml` files, overrides `dsl.mappingFiles` if set              |
 
@@ -154,7 +154,7 @@ dsl {
 | Property name | type           | Default value | Description                                                                      |
 |---------------|----------------|---------------|----------------------------------------------------------------------------------|
 | outputFile    | File           |       -       | File to generate                                                                 |
-| profile       | String         |      psql     | Database engine syntax to use                                                    |
+| databaseTypes       | String         |       -       | Path to .properties file describing type for the database engine syntax to use   |                                                    |
 | template      | File           |       -       | Velocity file, can be absolute or filename to search through `dsl.templateFiles` |
 | omeXmlFiles   | FileCollection |       -       | Collection of `.ome.xml` files, overrides `dsl.mappingFiles` if set              |
 

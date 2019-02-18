@@ -1,62 +1,88 @@
 package org.openmicroscopy.dsl.extensions
 
 import org.gradle.api.Project
+import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.FileCollection
 
 class DslExtension {
+
     final Project project
 
-    FileCollection omeXmlFiles
+    final ConfigurableFileCollection omeXmlFiles
 
-    FileCollection templateFiles
+    final ConfigurableFileCollection databaseTypes
 
-    File outputPath
+    final ConfigurableFileCollection templates
 
-    void templateFiles(FileCollection files) {
-        if (templateFiles) {
-            templateFiles = templateFiles + files
-        } else {
-            templateFiles = files
-        }
-    }
+    String databaseType
 
-    void omeXmlFiles(FileCollection files) {
-        if (omeXmlFiles) {
-            omeXmlFiles = omeXmlFiles + files
-        } else {
-            omeXmlFiles = files
-        }
-    }
-
-    void omeXmlFiles(List<File> files) {
-        this.setOmeXmlFiles(files)
-    }
-
-    void setOmeXmlFiles(List<File> files) {
-        this.omeXmlFiles = project.files(files)
-    }
-
-    void setOutputPath(String path) {
-        setOutputPath(new File(path))
-    }
-
-    void setOutputPath(File path) {
-        if (!path.isAbsolute()) {
-            outputPath = project.file(path)
-        } else {
-            outputPath = path
-        }
-    }
-
-    void outputPath(String path) {
-        setOutputPath(path)
-    }
-
-    void outputPath(File path) {
-        setOutputPath(path)
-    }
+    File outputDir
 
     DslExtension(Project project) {
         this.project = project
+        this.omeXmlFiles = project.files()
+        this.databaseTypes = project.files()
+        this.templates = project.files()
     }
+
+    void omeXmlFiles(FileCollection files) {
+        setOmeXmlFiles(files)
+    }
+
+    void omeXmlFiles(Object... files) {
+        setOmeXmlFiles(files)
+    }
+
+    void setOmeXmlFiles(FileCollection files) {
+        omeXmlFiles.setFrom(files)
+    }
+
+    void setOmeXmlFiles(Object... files) {
+        setOmeXmlFiles(project.files(files))
+    }
+
+    void templates(FileCollection files) {
+        setTemplates(files)
+    }
+
+    void templates(Object... files) {
+        setTemplates(files)
+    }
+
+    void setTemplates(Object... files) {
+        setTemplates(project.files(files))
+    }
+
+    void setTemplates(FileCollection files) {
+        templates.setFrom(files)
+    }
+
+    void databaseTypes(FileCollection files) {
+        setDatabaseTypes(files)
+    }
+
+    void databaseTypes(Object... files) {
+        setDatabaseTypes(files)
+    }
+
+    void setDatabaseTypes(Object... files) {
+        databaseTypes.setFrom(files)
+    }
+
+    void setDatabaseTypes(FileCollection files) {
+        databaseTypes.setFrom(files)
+    }
+
+    void databaseType(String type) {
+        databaseType = type
+    }
+
+    void outputDir(Object path) {
+        setOutputDir(path)
+    }
+
+    void setOutputDir(Object path) {
+        outputDir = project.file(path)
+    }
+
 }
